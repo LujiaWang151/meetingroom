@@ -6,10 +6,6 @@ import java.sql.ResultSet;
 
 
 public class BaseDao {
-    /*
-    public Connection getConnection() throws Exception {
-        return DruidUtil.getConnection();
-    }*/
 
     protected int update(String sql, Object... params) {
         Connection conn = null;

@@ -15,10 +15,4 @@ public enum BookingStatus {
         return description;
     }
 
-    /**
-     * 判断终态
-     */
-    public boolean isTerminal() {
-        return this == APPROVED || this == REJECTED || this == CANCELLED;
-    }
 }

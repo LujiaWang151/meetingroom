@@ -6,7 +6,7 @@ import com.meetingroom.enums.Role;
 
 public class AuthService {
 
-    private UserDao userDao = new UserDao();
+    private final UserDao userDao = new UserDao();
 
     /**
      * 登录认证

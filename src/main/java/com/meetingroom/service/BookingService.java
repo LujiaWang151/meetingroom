@@ -13,8 +13,8 @@ import java.util.List;
 
 public class BookingService {
 
-    private BookingDao bookingDao = new BookingDao();
-    private MeetingRoomDao meetingRoomDao = new MeetingRoomDao();
+    private final BookingDao bookingDao = new BookingDao();
+    private final MeetingRoomDao meetingRoomDao = new MeetingRoomDao();
 
     // ==================== 员工功能 ====================
 

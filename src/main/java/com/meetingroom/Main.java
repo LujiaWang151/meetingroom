@@ -1,6 +1,5 @@
 package com.meetingroom;
 
-import com.meetingroom.enums.Role;
 import com.meetingroom.enums.BookingStatus;
 import com.meetingroom.model.Booking;
 import com.meetingroom.model.MeetingRoom;
@@ -21,6 +20,7 @@ public class Main {
     private static Scanner scanner = new Scanner(System.in);
     private static AuthService authService = new AuthService();
     private static BookingService bookingService = new BookingService();
+    private static MeetingRoomService meetingRoomService = new MeetingRoomService();
     private static User currentUser = null;
 
     public static void main(String[] args) {
@@ -346,9 +346,7 @@ public class Main {
      * 查看所有会议室
      */
     private static void listAllRooms() {
-        List<MeetingRoom> rooms = MeetingRoomService.listAllRooms();
-        // 注意：listAvailableRooms 过滤了停用的，如果需要看全部可以调用 meetingRoomDao.findAll()
-        // 这里先展示可用的，后续可以扩展
+        List<MeetingRoom> rooms = meetingRoomService.listAllRooms();
         if (rooms.isEmpty()) {
             System.out.println("暂无会议室");
         } else {
@@ -364,7 +362,7 @@ public class Main {
 
     private static void listIdRoom(Integer id) {
 
-        MeetingRoom room = MeetingRoomService.listIdRoom(id);
+        MeetingRoom room = meetingRoomService.listIdRoom(id);
         if (room != null) {
             System.out.println("\n--- 查询结果 ---");
             System.out.println("会议室ID: " + room.getId());
@@ -442,6 +440,7 @@ public class Main {
      * 新增会议室
      */
     private static void addMeetingRoom() {
+
         System.out.print("请输入会议室名称: ");
         String name = scanner.nextLine().trim();
         System.out.print("请输入容量: ");
@@ -462,10 +461,8 @@ public class Main {
         room.setLocation(location);
         room.setIsActive(true);
 
-        // 注意：BookingService 里没有 addMeetingRoom 方法，需要调用 meetingRoomDao.insert
-        // 这里简化处理，实际应该在 BookingService 里加这个方法
-        // 或者直接在 Main 里 new MeetingRoomDao().insert(room)
-        System.out.println("新增会议室功能需要 MeetingRoomDao.insert 支持，请自行调用");
+        meetingRoomService.addRoom(currentUser, name, capacity, location, true);
+
         waitInput();
     }
 
@@ -484,7 +481,7 @@ public class Main {
             return;
         }
         // 先查出会议室
-        MeetingRoom room = new com.meetingroom.dao.MeetingRoomDao().findById(id);
+        MeetingRoom room = meetingRoomService.listIdRoom(id);
         if (room == null) {
             System.out.println("会议室不存在");
             waitInput();
@@ -504,13 +501,8 @@ public class Main {
         System.out.print("请输入新位置: ");
         room.setLocation(scanner.nextLine().trim());
 
-        com.meetingroom.dao.MeetingRoomDao dao = new com.meetingroom.dao.MeetingRoomDao();
-        int rows = dao.update(room);
-        if (rows > 0) {
-            System.out.println("修改成功");
-        } else {
-            System.out.println("修改失败");
-        }
+        MeetingRoomService service = new MeetingRoomService();
+        service.updateRoom(currentUser, id, room.getRoom_name(), room.getCapacity(), room.getLocation(), true);
         waitInput();
     }
 
@@ -520,7 +512,7 @@ public class Main {
     private static void deleteMeetingRoom() {
         System.out.print("请输入要删除的会议室编号: ");
         String input = scanner.nextLine().trim();
-        Integer id = null;
+        Integer id;
         try {
             id = Integer.parseInt(input);
         } catch (NumberFormatException e) {
@@ -528,13 +520,7 @@ public class Main {
             waitInput();
             return;
         }
-        com.meetingroom.dao.MeetingRoomDao dao = new com.meetingroom.dao.MeetingRoomDao();
-        int rows = dao.deleteById(id);
-        if (rows > 0) {
-            System.out.println("删除成功");
-        } else {
-            System.out.println("删除失败，会议室不存在");
-        }
+        meetingRoomService.deleteRoom(currentUser,id);
         waitInput();
     }
 

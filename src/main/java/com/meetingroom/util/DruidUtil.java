@@ -10,7 +10,7 @@ import java.util.Properties;
 
 public class DruidUtil {
 
-    private static DataSource dataSource;
+    private static final DataSource dataSource;
 
     static {
         try {
@@ -30,11 +30,10 @@ public class DruidUtil {
     }
 
 
-
     public static void close(Connection conn) {
         if (conn != null) {
             try {
-                conn.close(); // 归还给连接池，不是销毁
+                conn.close();
             } catch (SQLException e) {
                 e.printStackTrace();
             }
