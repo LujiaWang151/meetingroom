@@ -17,10 +17,10 @@ import java.util.Scanner;
 
 public class Main {
 
-    private static Scanner scanner = new Scanner(System.in);
-    private static AuthService authService = new AuthService();
-    private static BookingService bookingService = new BookingService();
-    private static MeetingRoomService meetingRoomService = new MeetingRoomService();
+    private static final Scanner scanner = new Scanner(System.in);
+    private static final AuthService authService = new AuthService();
+    private static final BookingService bookingService = new BookingService();
+    private static final MeetingRoomService meetingRoomService = new MeetingRoomService();
     private static User currentUser = null;
 
     public static void main(String[] args) {
@@ -243,18 +243,22 @@ public class Main {
             String input = scanner.nextLine().trim();
             try {
                 roomId = Integer.parseInt(input);
+                if(meetingRoomService.listIdRoom(roomId)==null){
+                    System.out.println("该会议室不存在，请重新输入!");
+                    roomId = null;
+                }
             } catch (NumberFormatException e) {
                 System.out.println("请输入有效的数字");
             }
         }
 
         // 获取标题
-        System.out.print("请输入预约标题: ");
-        String title = scanner.nextLine().trim();
-        if (title.isEmpty()) {
-            System.out.println("标题不能为空");
-            waitInput();
-            return;
+        String title = "";
+        while (title.isEmpty()) {
+            System.out.print("请输入预约标题: ");
+            title = scanner.nextLine().trim();
+            if(title.isEmpty())
+                System.out.println("标题不能为空,请重新输入！");
         }
 
         // 获取参会人数
@@ -265,7 +269,7 @@ public class Main {
             try {
                 participantCount = Integer.parseInt(input);
                 if (participantCount <= 0) {
-                    System.out.println("人数必须大于0");
+                    System.out.println("人数必须大于0，请重新输入！");
                 }
             } catch (NumberFormatException e) {
                 System.out.println("请输入有效的数字");
@@ -279,8 +283,12 @@ public class Main {
             String input = scanner.nextLine().trim();
             try {
                 startTime = LocalDateTime.parse(input, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"));
+                if(startTime.isBefore(LocalDateTime.now())){
+                    System.out.println("预约开始时间不能是过去时间，请重新输入！");
+                    startTime = null; // 置空，继续循环让用户重输
+                }
             } catch (DateTimeParseException e) {
-                System.out.println("时间格式错误，请重新输入");
+                System.out.println("时间格式错误，请重新输入！");
             }
         }
 
@@ -292,11 +300,11 @@ public class Main {
             try {
                 endTime = LocalDateTime.parse(input, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"));
                 if (!endTime.isAfter(startTime)) {
-                    System.out.println("结束时间必须晚于开始时间");
+                    System.out.println("结束时间必须晚于开始时间，请重新输入！");
                     endTime = null;
                 }
             } catch (DateTimeParseException e) {
-                System.out.println("时间格式错误，请重新输入");
+                System.out.println("时间格式错误，请重新输入！");
             }
         }
 
@@ -512,7 +520,7 @@ public class Main {
     private static void deleteMeetingRoom() {
         System.out.print("请输入要删除的会议室编号: ");
         String input = scanner.nextLine().trim();
-        Integer id;
+        Integer id = null;
         try {
             id = Integer.parseInt(input);
         } catch (NumberFormatException e) {

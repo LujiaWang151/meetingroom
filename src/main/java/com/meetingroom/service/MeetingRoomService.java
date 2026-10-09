@@ -10,7 +10,7 @@ import java.util.List;
 
 public class MeetingRoomService {
 
-    private static final MeetingRoomDao meetingRoomDao = new MeetingRoomDao();
+    private final MeetingRoomDao meetingRoomDao = new MeetingRoomDao();
 
     /**
      * 查询所有会议室（管理员用，能看到停用的）
@@ -19,6 +19,9 @@ public class MeetingRoomService {
         return meetingRoomDao.findAll();
     }
 
+    /**
+     * 按照id查询会议室
+     */
     public  MeetingRoom listIdRoom(Integer id) {
         return meetingRoomDao.findById(id);
     }

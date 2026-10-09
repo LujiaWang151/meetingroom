@@ -6,13 +6,12 @@ import com.meetingroom.util.DruidUtil;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
 public class MeetingRoomDao extends BaseDao {
 
-    protected List<MeetingRoom> queryMeetingRooms(String sql, Object... params) {
+    private List<MeetingRoom> queryMeetingRooms(String sql, Object... params) {
         Connection conn = null;
         PreparedStatement ps = null;
         ResultSet rs = null;
@@ -64,23 +63,7 @@ public class MeetingRoomDao extends BaseDao {
      */
     public int update(MeetingRoom room) {
         String sql = "UPDATE meeting_room SET room_name=?, capacity=?, location=?, is_active=? WHERE id=?";
-        Connection conn = null;
-        PreparedStatement ps = null;
-        try {
-            conn = DruidUtil.getConnection();
-            ps = conn.prepareStatement(sql);
-            ps.setString(1, room.getRoom_name());
-            ps.setInt(2, room.getCapacity());
-            ps.setString(3, room.getLocation());
-            ps.setBoolean(4, room.getIsActive());
-            ps.setInt(5, room.getId());
-            return ps.executeUpdate();
-        } catch (SQLException e) {
-            e.printStackTrace();
-        } finally {
-            close(conn,ps,null);
-        }
-        return 0;
+        return update(sql, room.getRoom_name(), room.getCapacity(), room.getLocation(), room.getIsActive(), room.getId());
     }
 
     /**
@@ -88,22 +71,7 @@ public class MeetingRoomDao extends BaseDao {
      */
     public int insert(MeetingRoom room) {
         String sql = "INSERT INTO meeting_room(room_name, capacity, location, is_active) VALUES(?, ?, ?, ?)";
-        Connection conn = null;
-        PreparedStatement ps = null;
-        try {
-            conn = DruidUtil.getConnection();
-            ps = conn.prepareStatement(sql);
-            ps.setString(1, room.getRoom_name());
-            ps.setInt(2, room.getCapacity());
-            ps.setString(3, room.getLocation());
-            ps.setBoolean(4, room.getIsActive());
-            return ps.executeUpdate();
-        } catch (SQLException e) {
-            e.printStackTrace();
-        } finally {
-            close(conn,ps,null);
-        }
-        return 0;
+        return update(sql,room.getRoom_name(),room.getCapacity(),room.getLocation(),room.getIsActive());
     }
 
     /**
@@ -111,18 +79,6 @@ public class MeetingRoomDao extends BaseDao {
      */
     public int deleteById(Integer id) {
         String sql = "DELETE FROM meeting_room WHERE id = ?";
-        Connection conn = null;
-        PreparedStatement ps = null;
-        try {
-            conn = DruidUtil.getConnection();
-            ps = conn.prepareStatement(sql);
-            ps.setInt(1, id);
-            return ps.executeUpdate();
-        } catch (SQLException e) {
-            e.printStackTrace();
-        } finally {
-            close(conn,ps,null);
-        }
-        return 0;
+        return update(sql,id);
     }
 }

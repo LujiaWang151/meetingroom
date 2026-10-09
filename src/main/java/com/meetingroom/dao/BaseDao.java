@@ -20,19 +20,13 @@ public class BaseDao {
         } catch (Exception e) {
             throw new RuntimeException("SQL执行失败: " + sql, e);
         } finally {
-            close(conn, ps, null);
+            DruidUtil.close(conn, ps, null);
         }
     }
 
     // 封装关闭资源的方法，Dao直接调用
-    public void close(Connection conn, PreparedStatement ps, ResultSet rs){
-        try{
-            if(rs!=null) rs.close();
-            if(ps!=null) ps.close();
-            if(conn!=null) conn.close();
-        }catch (Exception e){
-            e.printStackTrace();
-        }
+    protected void close(Connection conn, PreparedStatement ps, ResultSet rs){
+        DruidUtil.close(conn,ps,rs);
     }
 }
 

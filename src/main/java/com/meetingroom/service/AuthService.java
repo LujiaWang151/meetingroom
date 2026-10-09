@@ -46,4 +46,13 @@ public class AuthService {
     public boolean isEmployee(User user) {
         return user != null && user.getRole() == Role.EMPLOYEE;
     }
+
+
+    /**
+    * 按照员工名查询员工信息
+    * */
+    public User findByname(String name){
+        User user = userDao.findByUsername(name);
+        return user;
+    }
 }
