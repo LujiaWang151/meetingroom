@@ -4,9 +4,9 @@ import com.meetingroom.enums.BookingStatus;
 import com.meetingroom.model.Booking;
 import com.meetingroom.model.MeetingRoom;
 import com.meetingroom.model.User;
-import com.meetingroom.service.AuthService;
-import com.meetingroom.service.BookingService;
-import com.meetingroom.service.MeetingRoomService;
+import com.meetingroom.service.impl.AuthServiceImpl;
+import com.meetingroom.service.impl.BookingServiceImpl;
+import com.meetingroom.service.impl.MeetingRoomServiceImpl;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -18,9 +18,9 @@ import java.util.Scanner;
 public class Main {
 
     private static final Scanner scanner = new Scanner(System.in);
-    private static final AuthService authService = new AuthService();
-    private static final BookingService bookingService = new BookingService();
-    private static final MeetingRoomService meetingRoomService = new MeetingRoomService();
+    private static final AuthServiceImpl AUTH_SERVICE_IMPL = new AuthServiceImpl();
+    private static final BookingServiceImpl BOOKING_SERVICE_IMPL = new BookingServiceImpl();
+    private static final MeetingRoomServiceImpl MEETING_ROOM_SERVICE_IMPL = new MeetingRoomServiceImpl();
     private static User currentUser = null;
 
     public static void main(String[] args) {
@@ -33,9 +33,9 @@ public class Main {
 
         // 2. 根据角色进入对应菜单
         if (currentUser != null) {
-            if (authService.isAdmin(currentUser)) {
+            if (AUTH_SERVICE_IMPL.isAdmin(currentUser)) {
                 adminMenu();
-            } else if (authService.isEmployee(currentUser)) {
+            } else if (AUTH_SERVICE_IMPL.isEmployee(currentUser)) {
                 employeeMenu();
             }
         }
@@ -57,7 +57,7 @@ public class Main {
             System.out.print("请输入密码: ");
             String password = scanner.nextLine().trim();
 
-            currentUser = authService.login(username, password);
+            currentUser = AUTH_SERVICE_IMPL.login(username, password);
             if (currentUser != null) {
                 break; // 登录成功，跳出循环
             }
@@ -102,7 +102,7 @@ public class Main {
                     currentUser = null;
                     login();
                     // 重新登录后根据角色进入对应菜单
-                    if (authService.isAdmin(currentUser)) {
+                    if (AUTH_SERVICE_IMPL.isAdmin(currentUser)) {
                         adminMenu();
                     } else {
                         employeeMenu();
@@ -163,7 +163,7 @@ public class Main {
                 case "0":
                     currentUser = null;
                     login();
-                    if (authService.isAdmin(currentUser)) {
+                    if (AUTH_SERVICE_IMPL.isAdmin(currentUser)) {
                         adminMenu();
                     } else {
                         employeeMenu();
@@ -182,7 +182,7 @@ public class Main {
      * 查看所有可用会议室
      */
     private static void listAvailableRooms() {
-        List<MeetingRoom> rooms = bookingService.listAvailableRooms();
+        List<MeetingRoom> rooms = BOOKING_SERVICE_IMPL.listAvailableRooms();
         if (rooms.isEmpty()) {
             System.out.println("暂无可用会议室");
         } else {
@@ -200,7 +200,7 @@ public class Main {
      * 查看我的预约记录
      */
     private static void listMyBookings() {
-        List<Booking> bookings = bookingService.listMyBookings(currentUser.getUsername());
+        List<Booking> bookings = BOOKING_SERVICE_IMPL.listMyBookings(currentUser.getUsername());
         if (bookings.isEmpty()) {
             System.out.println("你暂无预约记录");
         } else {
@@ -223,7 +223,7 @@ public class Main {
      */
     private static void submitBooking() {
         // 先显示可用会议室让用户选
-        List<MeetingRoom> rooms = bookingService.listAvailableRooms();
+        List<MeetingRoom> rooms = BOOKING_SERVICE_IMPL.listAvailableRooms();
         if (rooms.isEmpty()) {
             System.out.println("暂无可用会议室，请联系管理员");
             waitInput();
@@ -243,7 +243,7 @@ public class Main {
             String input = scanner.nextLine().trim();
             try {
                 roomId = Integer.parseInt(input);
-                if(meetingRoomService.listIdRoom(roomId)==null){
+                if(MEETING_ROOM_SERVICE_IMPL.listIdRoom(roomId)==null){
                     System.out.println("该会议室不存在，请重新输入!");
                     roomId = null;
                 }
@@ -309,7 +309,7 @@ public class Main {
         }
 
         // 调用服务层提交
-        bookingService.submitBooking(currentUser, roomId, title, startTime, endTime, participantCount);
+        BOOKING_SERVICE_IMPL.submitBooking(currentUser, roomId, title, startTime, endTime, participantCount);
         waitInput();
     }
 
@@ -317,7 +317,7 @@ public class Main {
      * 取消预约
      */
     private static void cancelBooking() {
-        List<Booking> bookings = bookingService.listMyBookings(currentUser.getUsername());
+        List<Booking> bookings = BOOKING_SERVICE_IMPL.listMyBookings(currentUser.getUsername());
         if (bookings.isEmpty()) {
             System.out.println("你暂无预约记录，无法取消");
             waitInput();
@@ -344,7 +344,7 @@ public class Main {
             waitInput();
             return;
         }
-        bookingService.cancelBooking(currentUser, bookingId);
+        BOOKING_SERVICE_IMPL.cancelBooking(currentUser, bookingId);
         waitInput();
     }
 
@@ -354,7 +354,7 @@ public class Main {
      * 查看所有会议室
      */
     private static void listAllRooms() {
-        List<MeetingRoom> rooms = meetingRoomService.listAllRooms();
+        List<MeetingRoom> rooms = MEETING_ROOM_SERVICE_IMPL.listAllRooms();
         if (rooms.isEmpty()) {
             System.out.println("暂无会议室");
         } else {
@@ -370,7 +370,7 @@ public class Main {
 
     private static void listIdRoom(Integer id) {
 
-        MeetingRoom room = meetingRoomService.listIdRoom(id);
+        MeetingRoom room = MEETING_ROOM_SERVICE_IMPL.listIdRoom(id);
         if (room != null) {
             System.out.println("\n--- 查询结果 ---");
             System.out.println("会议室ID: " + room.getId());
@@ -388,7 +388,7 @@ public class Main {
      * 查看待审批预约
      */
     private static void listPendingBookings() {
-        List<Booking> bookings = bookingService.listPendingBookings();
+        List<Booking> bookings = BOOKING_SERVICE_IMPL.listPendingBookings();
         if (bookings.isEmpty()) {
             System.out.println("暂无待审批预约");
         } else {
@@ -421,7 +421,7 @@ public class Main {
             waitInput();
             return;
         }
-        bookingService.approveBooking(bookingId);
+        BOOKING_SERVICE_IMPL.approveBooking(bookingId);
         waitInput();
     }
 
@@ -440,7 +440,7 @@ public class Main {
             waitInput();
             return;
         }
-        bookingService.rejectBooking(bookingId);
+        BOOKING_SERVICE_IMPL.rejectBooking(bookingId);
         waitInput();
     }
 
@@ -469,7 +469,7 @@ public class Main {
         room.setLocation(location);
         room.setIsActive(true);
 
-        meetingRoomService.addRoom(currentUser, name, capacity, location, true);
+        MEETING_ROOM_SERVICE_IMPL.addRoom(currentUser, name, capacity, location, true);
 
         waitInput();
     }
@@ -489,7 +489,7 @@ public class Main {
             return;
         }
         // 先查出会议室
-        MeetingRoom room = meetingRoomService.listIdRoom(id);
+        MeetingRoom room = MEETING_ROOM_SERVICE_IMPL.listIdRoom(id);
         if (room == null) {
             System.out.println("会议室不存在");
             waitInput();
@@ -509,7 +509,7 @@ public class Main {
         System.out.print("请输入新位置: ");
         room.setLocation(scanner.nextLine().trim());
 
-        MeetingRoomService service = new MeetingRoomService();
+        MeetingRoomServiceImpl service = new MeetingRoomServiceImpl();
         service.updateRoom(currentUser, id, room.getRoom_name(), room.getCapacity(), room.getLocation(), true);
         waitInput();
     }
@@ -528,7 +528,7 @@ public class Main {
             waitInput();
             return;
         }
-        meetingRoomService.deleteRoom(currentUser,id);
+        MEETING_ROOM_SERVICE_IMPL.deleteRoom(currentUser,id);
         waitInput();
     }
 

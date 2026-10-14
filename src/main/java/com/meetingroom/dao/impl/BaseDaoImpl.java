@@ -1,0 +1,35 @@
+package com.meetingroom.dao.impl;
+import com.meetingroom.dao.BaseDao;
+import com.meetingroom.util.DruidUtil;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+
+
+public class BaseDaoImpl implements BaseDao {
+
+    @Override
+    public int update(String sql, Object... params) {
+        Connection conn = null;
+        PreparedStatement ps = null;
+        try {
+            conn = DruidUtil.getConnection();
+            ps = conn.prepareStatement(sql);
+            for (int i = 0; i < params.length; i++) {
+                ps.setObject(i + 1, params[i]);
+            }
+            return ps.executeUpdate();
+        } catch (Exception e) {
+            throw new RuntimeException("SQL执行失败: " + sql, e);
+        } finally {
+            DruidUtil.close(conn, ps, null);
+        }
+    }
+
+    // 封装关闭资源的方法
+    @Override
+    public void close(Connection conn, PreparedStatement ps, ResultSet rs){
+        DruidUtil.close(conn,ps,rs);
+    }
+}
+
